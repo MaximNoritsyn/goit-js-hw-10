@@ -1,37 +1,12 @@
-import iziToast from "izitoast";
 import "izitoast/dist/css/iziToast.min.css";
 import debounce from "lodash.debounce";
+import { fetchCountries } from "./fetchCountries";
+import { sendIziToast } from "./notification";
 
 const selectors = {
-    input: document.querySelector('#search'),
+    input: document.querySelector('input#search-box'),
     catInfo: document.querySelector('.cat-info'),
 };
-
-function sendIziToast(text, type) {
-  iziToast[type]({
-    message: text,
-    position: "topCenter",
-    transitionIn: 'fadeInDown'
-  });
-}
-
-function fetchCountries(name) {
-    return fetch(`https://restcountries.com/v3.1/name/${name}`)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            console.log(response);
-            if (response.status === 404) {
-                sendIziToast('Oops, there is no country with that name', 'error');
-                return [];
-            }
-            throw new Error(response.statusText);
-        })
-        .catch(err => {
-            sendIziToast(err, 'error');
-        });
-}
 
 function countriesList(countries) {
     const countriesList = countries.map(country => `
@@ -55,7 +30,7 @@ function countryCard(country) {
 }
 
 function handlerInput(e) {
-    const countryName = e.target.value;
+    const countryName = e.target.value.trim();
     if (countryName === '') {
         selectors.catInfo.innerHTML = '';
         return;
@@ -70,14 +45,18 @@ function handlerInput(e) {
                 selectors.catInfo.innerHTML = countryCard(data);
                 return;
             }
-            if (data.length <= 5) {
-                console.log(data);
+            if (data.length <= 10) {
                 selectors.catInfo.innerHTML = countriesList(data);
+                return;
+            }
+            if (data.length === 0) {
+                selectors.catInfo.innerHTML = '';
                 return;
             }
         })
         .catch(err => {
-        sendIziToast(err, 'error');
+            console.error(err);
+            sendIziToast('Sorry, something went wrong', 'error');
         });
 }
 
