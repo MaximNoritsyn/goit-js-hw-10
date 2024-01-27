@@ -39,6 +39,7 @@ function handlerInput(e) {
         .then(data => {
             if (data.length > 10) {
                 sendIziToast('Too many matches found. Please enter a more specific name!', 'info');
+                selectors.catInfo.innerHTML = '';
                 return;
             }
             if (data.length === 1) {
